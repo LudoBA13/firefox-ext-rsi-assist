@@ -6,6 +6,50 @@
 	{
 		const HOST_ID = 'rsi-assist-floating-host';
 		
+		function simulateTabKey(element)
+		{
+			const keydownEvent = new KeyboardEvent
+			(
+				'keydown',
+				{
+					key: 'Tab',
+					code: 'Tab',
+					keyCode: 9,
+					which: 9,
+					bubbles: true,
+					cancelable: true
+				}
+			);
+			const keypressEvent = new KeyboardEvent
+			(
+				'keypress',
+				{
+					key: 'Tab',
+					code: 'Tab',
+					keyCode: 9,
+					which: 9,
+					bubbles: true,
+					cancelable: true
+				}
+			);
+			const keyupEvent = new KeyboardEvent
+			(
+				'keyup',
+				{
+					key: 'Tab',
+					code: 'Tab',
+					keyCode: 9,
+					which: 9,
+					bubbles: true,
+					cancelable: true
+				}
+			);
+			
+			element.dispatchEvent(keydownEvent);
+			element.dispatchEvent(keypressEvent);
+			element.dispatchEvent(keyupEvent);
+		}
+		
 		function insertText(text)
 		{
 			const activeElement = document.activeElement;
@@ -41,6 +85,15 @@
 					selection.addRange(range);
 				}
 			}
+			
+			setTimeout
+			(
+				function ()
+				{
+					simulateTabKey(activeElement);
+				},
+				200
+			);
 		}
 		
 		function removeFloatingList()
