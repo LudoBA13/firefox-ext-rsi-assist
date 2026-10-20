@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>RSI Assist</title>
+	<style>
+		body {
+			width: 320px;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			margin: 0;
+			padding: 16px;
+			background-color: #f9f9fb;
+			color: #24292e;
+		}
+		h2 {
+			font-size: 16px;
+			margin-top: 0;
+			margin-bottom: 8px;
+			color: #0060df;
+		}
+		.hostname {
+			font-size: 12px;
+			color: #586069;
+			margin-bottom: 16px;
+			word-break: break-all;
+			background: #e1def5;
+			padding: 4px 8px;
+			border-radius: 4px;
+		}
+		.snippet-container {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 8px;
+			align-items: center;
+		}
+		input[type="text"] {
+			flex: 1;
+			padding: 6px 8px;
+			border: 1px solid #cbccd1;
+			border-radius: 4px;
+			font-size: 14px;
+		}
+		input[type="text"]:focus {
+			border-color: #0060df;
+			outline: none;
+		}
+		button {
+			cursor: pointer;
+			padding: 6px 12px;
+			border-radius: 4px;
+			border: none;
+			font-size: 13px;
+			font-weight: 500;
+		}
+		.btn-danger {
+			background-color: #d73a49;
+			color: white;
+		}
+		.btn-danger:hover {
+			background-color: #b31d28;
+		}
+		.btn-secondary {
+			background-color: #e1e4e8;
+			color: #24292e;
+			width: 100%;
+			margin-bottom: 12px;
+		}
+		.btn-secondary:hover {
+			background-color: #d1d5da;
+		}
+		.actions {
+			display: flex;
+			gap: 8px;
+			margin-top: 16px;
+		}
+		.btn-primary {
+			background-color: #0060df;
+			color: white;
+			flex: 1;
+		}
+		.btn-primary:hover {
+			background-color: #003bad;
+		}
+		.btn-clear {
+			background-color: #f34f29;
+			color: white;
+		}
+		.btn-clear:hover {
+			background-color: #d73a49;
+		}
+		.status {
+			font-size: 12px;
+			color: #28a745;
+			margin-top: 8px;
+			text-align: center;
+			height: 16px;
+		}
+	</style>
+</head>
+<body>
+	<h2>RSI Assist</h2>
+	<div id="hostname" class="hostname">Chargement...</div>
+	
+	<div id="snippets-list">
+		<!-- Dynamic snippet inputs will be inserted here -->
+	</div>
+	
+	<button id="add-btn" class="btn-secondary">+ Ajouter un champ</button>
+	
+	<div class="actions">
+		<button id="save-btn" class="btn-primary">Enregistrer</button>
+		<button id="clear-btn" class="btn-clear">Supprimer tout</button>
+	</div>
+	
+	<div id="status" class="status"></div>
+
+	<script src="popup.js"></script>
+</body>
+</html>
