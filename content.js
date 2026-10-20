@@ -126,7 +126,8 @@
 					position: fixed;
 					top: 20px;
 					right: 20px;
-					width: 240px;
+					width: 480px;
+					max-height: 99vh;
 					background: #ffffff;
 					border: 1px solid #cbccd1;
 					border-radius: 8px;
@@ -135,6 +136,8 @@
 					font-size: 13px;
 					z-index: 2147483647;
 					box-sizing: border-box;
+					display: flex;
+					flex-direction: column;
 					overflow: hidden;
 				}
 				.rsi-header {
@@ -149,6 +152,7 @@
 					align-items: center;
 					border-top-left-radius: 7px;
 					border-top-right-radius: 7px;
+					flex-shrink: 0;
 				}
 				.rsi-header:active {
 					cursor: grabbing;
@@ -159,15 +163,17 @@
 				}
 				.rsi-body {
 					padding: 8px;
-					max-height: 280px;
 					overflow-y: auto;
+					flex: 1;
 					display: flex;
 					flex-direction: column;
+					flex-wrap: wrap;
+					max-height: calc(99vh - 50px);
 					gap: 6px;
 				}
 				.rsi-btn {
 					display: block;
-					width: 100%;
+					width: calc(50% - 3px);
 					white-space: nowrap;
 					overflow: hidden;
 					text-overflow: ellipsis;

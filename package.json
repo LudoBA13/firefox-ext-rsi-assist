@@ -1,6 +1,6 @@
 {
   "name": "firefox-ext-rsi-assist",
-  "version": "0.0.3",
+  "version": "0.0.11",
   "description": "Assistant de prévention des TMS pour la saisie répétitive",
   "scripts": {
     "start": "web-ext run",

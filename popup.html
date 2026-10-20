@@ -101,16 +101,21 @@
 	<h2>RSI Assist</h2>
 	<div id="hostname" class="hostname">Chargement...</div>
 	
+	<button id="floating-toggle-btn" class="btn-secondary">Liste flottante : Désactivée</button>
+	
 	<div id="snippets-list">
 		<!-- Dynamic snippet inputs will be inserted here -->
 	</div>
 	
-	<button id="floating-toggle-btn" class="btn-secondary">Liste flottante : Désactivée</button>
 	<button id="add-btn" class="btn-secondary">+ Ajouter un champ</button>
 	
 	<div class="actions">
-		<button id="save-btn" class="btn-primary">Enregistrer</button>
-		<button id="clear-btn" class="btn-clear">Supprimer tout</button>
+		<button id="clear-btn" class="btn-clear" style="width: 100%;">Supprimer tout</button>
+	</div>
+	
+	<div class="actions">
+		<button id="export-btn" class="btn-secondary" style="flex: 1; margin-bottom: 0;">Exporter</button>
+		<button id="import-btn" class="btn-secondary" style="flex: 1; margin-bottom: 0;">Importer</button>
 	</div>
 	
 	<div id="status" class="status"></div>
