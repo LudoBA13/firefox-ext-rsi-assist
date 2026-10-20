@@ -8,12 +8,14 @@ document.addEventListener
 	{
 		const hostnameElement = document.getElementById('hostname');
 		const snippetsListElement = document.getElementById('snippets-list');
+		const floatingToggleBtn = document.getElementById('floating-toggle-btn');
 		const addBtn = document.getElementById('add-btn');
 		const saveBtn = document.getElementById('save-btn');
 		const clearBtn = document.getElementById('clear-btn');
 		const statusElement = document.getElementById('status');
 		
 		let currentHostname = '';
+		let floatingEnabledState = false;
 		
 		// Query active tab to get exact hostname
 		chrome.tabs.query
@@ -50,6 +52,51 @@ document.addEventListener
 			}
 		);
 		
+		function updateFloatingToggleUI(enabled)
+		{
+			floatingEnabledState = enabled;
+			if (enabled)
+			{
+				floatingToggleBtn.textContent = 'Liste flottante : Activée';
+				floatingToggleBtn.style.backgroundColor = '#28a745';
+				floatingToggleBtn.style.color = 'white';
+			}
+			else
+			{
+				floatingToggleBtn.textContent = 'Liste flottante : Désactivée';
+				floatingToggleBtn.style.backgroundColor = '';
+				floatingToggleBtn.style.color = '';
+			}
+		}
+		
+		floatingToggleBtn.addEventListener
+		(
+			'click',
+			function ()
+			{
+				if (!currentHostname)
+				{
+					return;
+				}
+				
+				const newState = !floatingEnabledState;
+				updateFloatingToggleUI(newState);
+				
+				const floatingKey = 'floatingList_' + currentHostname;
+				const data = {};
+				data[floatingKey] = newState;
+				
+				chrome.storage.local.set
+				(
+					data,
+					function ()
+					{
+						showStatus(newState ? 'Liste flottante activée' : 'Liste flottante désactivée');
+					}
+				);
+			}
+		);
+		
 		function loadSnippets()
 		{
 			if (!currentHostname)
@@ -57,12 +104,17 @@ document.addEventListener
 				return;
 			}
 			
+			const floatingKey = 'floatingList_' + currentHostname;
 			chrome.storage.local.get
 			(
-				[currentHostname],
+				[currentHostname, floatingKey],
 				function (result)
 				{
 					const snippets = result[currentHostname] || [];
+					const isFloatingEnabled = !!result[floatingKey];
+					
+					updateFloatingToggleUI(isFloatingEnabled);
+					
 					snippetsListElement.innerHTML = '';
 					
 					if (snippets.length === 0)
@@ -173,13 +225,15 @@ document.addEventListener
 				
 				if (confirm('Voulez-vous vraiment supprimer tous les textes pour ce site ?'))
 				{
+					const floatingKey = 'floatingList_' + currentHostname;
 					chrome.storage.local.remove
 					(
-						currentHostname,
+						[currentHostname, floatingKey],
 						function ()
 						{
 							snippetsListElement.innerHTML = '';
 							addSnippetInput('');
+							updateFloatingToggleUI(false);
 							showStatus('Supprimé avec succès !');
 						}
 					);
