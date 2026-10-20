@@ -129,7 +129,7 @@
 					width: 480px;
 					max-height: 99vh;
 					min-width: 280px;
-					min-height: 150px;
+					min-height: 120px;
 					background: #ffffff;
 					border: 1px solid #cbccd1;
 					border-radius: 8px;
@@ -162,6 +162,25 @@
 				.rsi-title {
 					font-size: 13px;
 					letter-spacing: 0.3px;
+				}
+				.rsi-controls {
+					display: flex;
+					gap: 6px;
+					align-items: center;
+				}
+				.rsi-control-btn {
+					background: transparent;
+					border: none;
+					color: #ffffff;
+					cursor: pointer;
+					font-size: 13px;
+					font-weight: bold;
+					padding: 2px 6px;
+					border-radius: 4px;
+					line-height: 1;
+				}
+				.rsi-control-btn:hover {
+					background: rgba(255, 255, 255, 0.2);
 				}
 				.rsi-body {
 					padding: 8px;
@@ -237,7 +256,109 @@
 			const titleSpan = document.createElement('span');
 			titleSpan.className = 'rsi-title';
 			titleSpan.textContent = 'RSI Assist';
+			
+			const controlsContainer = document.createElement('div');
+			controlsContainer.className = 'rsi-controls';
+			
+			const shadeBtn = document.createElement('button');
+			shadeBtn.type = 'button';
+			shadeBtn.className = 'rsi-control-btn';
+			shadeBtn.textContent = '_';
+			shadeBtn.title = 'Minimiser';
+			
+			const closeBtn = document.createElement('button');
+			closeBtn.type = 'button';
+			closeBtn.className = 'rsi-control-btn';
+			closeBtn.textContent = '✕';
+			closeBtn.title = 'Fermer';
+			
+			let isShaded = false;
+			let previousHeight = '';
+			
+			shadeBtn.addEventListener
+			(
+				'mousedown',
+				function (e)
+				{
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			);
+			
+			shadeBtn.addEventListener
+			(
+				'click',
+				function (e)
+				{
+					e.preventDefault();
+					e.stopPropagation();
+					isShaded = !isShaded;
+					if (isShaded)
+					{
+						previousHeight = box.style.height;
+						box.style.height = 'auto';
+						body.style.display = 'none';
+						resizeHandle.style.display = 'none';
+						shadeBtn.textContent = '□';
+						shadeBtn.title = 'Restaurer';
+					}
+					else
+					{
+						box.style.height = previousHeight || '';
+						body.style.display = 'flex';
+						resizeHandle.style.display = 'block';
+						shadeBtn.textContent = '_';
+						shadeBtn.title = 'Minimiser';
+					}
+				}
+			);
+			
+			closeBtn.addEventListener
+			(
+				'mousedown',
+				function (e)
+				{
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			);
+			
+			closeBtn.addEventListener
+			(
+				'click',
+				function (e)
+				{
+					e.preventDefault();
+					e.stopPropagation();
+					const hostname = window.location.hostname;
+					const floatingKey = 'floatingList_' + hostname;
+					const data = {};
+					data[floatingKey] = false;
+					chrome.storage.local.set
+					(
+						data,
+						function ()
+						{
+							removeFloatingList();
+						}
+					);
+				}
+			);
+			
+			controlsContainer.addEventListener
+			(
+				'mousedown',
+				function (e)
+				{
+					e.stopPropagation();
+				}
+			);
+			
+			controlsContainer.appendChild(shadeBtn);
+			controlsContainer.appendChild(closeBtn);
+			
 			header.appendChild(titleSpan);
+			header.appendChild(controlsContainer);
 			
 			const body = document.createElement('div');
 			body.className = 'rsi-body';
@@ -370,7 +491,7 @@
 					function onResizeMove(moveEvent)
 					{
 						const newWidth = Math.max(280, startWidth + (moveEvent.clientX - startX));
-						const newHeight = Math.max(150, startHeight + (moveEvent.clientY - startY));
+						const newHeight = Math.max(120, startHeight + (moveEvent.clientY - startY));
 						box.style.width = newWidth + 'px';
 						box.style.height = newHeight + 'px';
 					}
