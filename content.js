@@ -105,7 +105,7 @@
 			}
 		}
 		
-		function renderFloatingList(snippets)
+		function renderFloatingList(snippets, savedPos)
 		{
 			removeFloatingList();
 			
@@ -128,6 +128,8 @@
 					right: 20px;
 					width: 480px;
 					max-height: 99vh;
+					min-width: 280px;
+					min-height: 150px;
 					background: #ffffff;
 					border: 1px solid #cbccd1;
 					border-radius: 8px;
@@ -192,10 +194,42 @@
 					background: #e2e6ea;
 					border-color: #c0c4cc;
 				}
+				.rsi-resize-handle {
+					position: absolute;
+					bottom: 0;
+					right: 0;
+					width: 16px;
+					height: 16px;
+					cursor: nwse-resize;
+					z-index: 10;
+					background: linear-gradient(135deg, transparent 50%, #adb5bd 50%, transparent 60%, transparent 70%, #adb5bd 70%, transparent 80%);
+					border-bottom-right-radius: 8px;
+				}
 			`;
 			
 			const box = document.createElement('div');
 			box.className = 'rsi-box';
+			
+			if (savedPos)
+			{
+				if (savedPos.left)
+				{
+					box.style.left = savedPos.left;
+					box.style.right = 'auto';
+				}
+				if (savedPos.top)
+				{
+					box.style.top = savedPos.top;
+				}
+				if (savedPos.width)
+				{
+					box.style.width = savedPos.width;
+				}
+				if (savedPos.height)
+				{
+					box.style.height = savedPos.height;
+				}
+			}
 			
 			const header = document.createElement('div');
 			header.className = 'rsi-header';
@@ -253,10 +287,30 @@
 				}
 			);
 			
+			const resizeHandle = document.createElement('div');
+			resizeHandle.className = 'rsi-resize-handle';
+			
 			box.appendChild(header);
 			box.appendChild(body);
+			box.appendChild(resizeHandle);
 			shadowRoot.appendChild(style);
 			shadowRoot.appendChild(box);
+			
+			function saveFloatingPosition()
+			{
+				const hostname = window.location.hostname;
+				const posKey = 'floatingPos_' + hostname;
+				const rect = box.getBoundingClientRect();
+				const posData = {
+					left: box.style.left || rect.left + 'px',
+					top: box.style.top || rect.top + 'px',
+					width: box.style.width || rect.width + 'px',
+					height: box.style.height || rect.height + 'px'
+				};
+				const data = {};
+				data[posKey] = posData;
+				chrome.storage.local.set(data);
+			}
 			
 			// Dragging logic
 			header.addEventListener
@@ -285,10 +339,51 @@
 					{
 						window.removeEventListener('mousemove', onMouseMove);
 						window.removeEventListener('mouseup', onMouseUp);
+						saveFloatingPosition();
 					}
 					
 					window.addEventListener('mousemove', onMouseMove);
 					window.addEventListener('mouseup', onMouseUp);
+				}
+			);
+			
+			// Resizing logic
+			resizeHandle.addEventListener
+			(
+				'mousedown',
+				function (e)
+				{
+					e.preventDefault();
+					e.stopPropagation();
+					const startX = e.clientX;
+					const startY = e.clientY;
+					const startWidth = box.offsetWidth;
+					const startHeight = box.offsetHeight;
+					
+					const rect = box.getBoundingClientRect();
+					box.style.right = 'auto';
+					box.style.left = rect.left + 'px';
+					box.style.top = rect.top + 'px';
+					box.style.width = startWidth + 'px';
+					box.style.height = startHeight + 'px';
+					
+					function onResizeMove(moveEvent)
+					{
+						const newWidth = Math.max(280, startWidth + (moveEvent.clientX - startX));
+						const newHeight = Math.max(150, startHeight + (moveEvent.clientY - startY));
+						box.style.width = newWidth + 'px';
+						box.style.height = newHeight + 'px';
+					}
+					
+					function onResizeUp()
+					{
+						window.removeEventListener('mousemove', onResizeMove);
+						window.removeEventListener('mouseup', onResizeUp);
+						saveFloatingPosition();
+					}
+					
+					window.addEventListener('mousemove', onResizeMove);
+					window.addEventListener('mouseup', onResizeUp);
 				}
 			);
 		}
@@ -297,18 +392,20 @@
 		{
 			const hostname = window.location.hostname;
 			const floatingKey = 'floatingList_' + hostname;
+			const posKey = 'floatingPos_' + hostname;
 			
 			chrome.storage.local.get
 			(
-				[hostname, floatingKey],
+				[hostname, floatingKey, posKey],
 				function (result)
 				{
 					const snippets = result[hostname] || [];
 					const isEnabled = !!result[floatingKey];
+					const pos = result[posKey];
 					
 					if (isEnabled && snippets.length > 0)
 					{
-						renderFloatingList(snippets);
+						renderFloatingList(snippets, pos);
 					}
 					else
 					{
