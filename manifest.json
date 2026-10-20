@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "RSI Assist",
-	"version": "0.0.14",
+	"version": "1.0.0",
 	"description": "Assistant de prévention des TMS pour la saisie répétitive",
 	"author": "Ludovic ARNAUD",
 	"developer": {
