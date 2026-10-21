@@ -297,6 +297,7 @@
 					{
 						previousHeight = box.style.height;
 						box.style.height = 'auto';
+						box.style.minHeight = '0';
 						body.style.display = 'none';
 						resizeHandle.style.display = 'none';
 						shadeBtn.textContent = '□';
@@ -305,6 +306,7 @@
 					else
 					{
 						box.style.height = previousHeight || '';
+						box.style.minHeight = '';
 						body.style.display = 'flex';
 						resizeHandle.style.display = 'block';
 						shadeBtn.textContent = '_';
@@ -426,7 +428,7 @@
 					left: box.style.left || rect.left + 'px',
 					top: box.style.top || rect.top + 'px',
 					width: box.style.width || rect.width + 'px',
-					height: box.style.height || rect.height + 'px'
+					height: isShaded ? (previousHeight || '') : (box.style.height || rect.height + 'px')
 				};
 				const data = {};
 				data[posKey] = posData;
