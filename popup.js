@@ -9,10 +9,9 @@ document.addEventListener
 		const hostnameElement = document.getElementById('hostname');
 		const snippetsListElement = document.getElementById('snippets-list');
 		const floatingToggleBtn = document.getElementById('floating-toggle-btn');
+		const configBtn = document.getElementById('config-btn');
 		const addBtn = document.getElementById('add-btn');
 		const clearBtn = document.getElementById('clear-btn');
-		const exportBtn = document.getElementById('export-btn');
-		const importBtn = document.getElementById('import-btn');
 		const statusElement = document.getElementById('status');
 		
 		let currentHostname = '';
@@ -59,13 +58,13 @@ document.addEventListener
 			floatingEnabledState = enabled;
 			if (enabled)
 			{
-				floatingToggleBtn.textContent = 'Liste flottante : Activée';
+				floatingToggleBtn.textContent = 'Flottante : On';
 				floatingToggleBtn.style.backgroundColor = '#28a745';
 				floatingToggleBtn.style.color = 'white';
 			}
 			else
 			{
-				floatingToggleBtn.textContent = 'Liste flottante : Désactivée';
+				floatingToggleBtn.textContent = 'Flottante : Off';
 				floatingToggleBtn.style.backgroundColor = '';
 				floatingToggleBtn.style.color = '';
 			}
@@ -96,6 +95,22 @@ document.addEventListener
 						showStatus(newState ? 'Liste flottante activée' : 'Liste flottante désactivée');
 					}
 				);
+			}
+		);
+		
+		configBtn.addEventListener
+		(
+			'click',
+			function ()
+			{
+				if (chrome.runtime.openOptionsPage)
+				{
+					chrome.runtime.openOptionsPage();
+				}
+				else
+				{
+					window.open(chrome.runtime.getURL('options.html'));
+				}
 			}
 		);
 		
@@ -262,126 +277,6 @@ document.addEventListener
 							showStatus('Supprimé avec succès !');
 						}
 					);
-				}
-			}
-		);
-		
-		exportBtn.addEventListener
-		(
-			'click',
-			function ()
-			{
-				if (!currentHostname)
-				{
-					return;
-				}
-				
-				const inputs = snippetsListElement.querySelectorAll('input[type="text"]');
-				const snippets = [];
-				
-				inputs.forEach
-				(
-					function (input)
-					{
-						const trimmed = input.value.trim();
-						if (trimmed.length > 0)
-						{
-							snippets.push(trimmed);
-						}
-					}
-				);
-				
-				const exportData = {
-					hostname: currentHostname,
-					snippets: snippets,
-					floatingList: floatingEnabledState
-				};
-				
-				const dataStr = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData, null, 2));
-				const downloadAnchor = document.createElement('a');
-				downloadAnchor.setAttribute('href', dataStr);
-				downloadAnchor.setAttribute('download', 'rsi-assist-' + currentHostname + '.json');
-				document.body.appendChild(downloadAnchor);
-				downloadAnchor.click();
-				downloadAnchor.remove();
-				
-				showStatus('Exporté avec succès !');
-			}
-		);
-		
-		importBtn.addEventListener
-		(
-			'click',
-			function ()
-			{
-				if (!currentHostname)
-				{
-					return;
-				}
-				
-				const jsonInput = prompt('Collez le contenu JSON exporté pour importer les snippets :', '');
-				if (!jsonInput)
-				{
-					return;
-				}
-				
-				try
-				{
-					const parsed = JSON.parse(jsonInput);
-					let importedSnippets = [];
-					
-					if (Array.isArray(parsed))
-					{
-						importedSnippets = parsed;
-					}
-					else if (parsed && Array.isArray(parsed.snippets))
-					{
-						importedSnippets = parsed.snippets;
-					}
-					else
-					{
-						throw new Error('Format JSON invalide');
-					}
-					
-					if (importedSnippets.length === 0)
-					{
-						showStatus('Aucun texte à importer');
-						return;
-					}
-					
-					const inputs = snippetsListElement.querySelectorAll('input[type="text"]');
-					if (inputs.length === 1 && inputs[0].value.trim() === '')
-					{
-						snippetsListElement.innerHTML = '';
-					}
-					
-					importedSnippets.forEach
-					(
-						function (snippet)
-						{
-							if (typeof snippet === 'string' && snippet.trim().length > 0)
-							{
-								addSnippetInput(snippet.trim(), false);
-							}
-						}
-					);
-					
-					if (parsed && typeof parsed.floatingList === 'boolean')
-					{
-						updateFloatingToggleUI(parsed.floatingList);
-						const floatingKey = 'floatingList_' + currentHostname;
-						const floatingData = {};
-						floatingData[floatingKey] = parsed.floatingList;
-						chrome.storage.local.set(floatingData);
-					}
-					
-					triggerAutoSave();
-					showStatus('Importé et enregistré !');
-				}
-				catch (error)
-				{
-					console.error('Error importing JSON:', error);
-					showStatus('Erreur lors de l\'importation (JSON invalide)');
 				}
 			}
 		);

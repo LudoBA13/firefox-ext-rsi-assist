@@ -95,13 +95,21 @@
 			text-align: center;
 			height: 16px;
 		}
+		.top-actions {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 12px;
+		}
 	</style>
 </head>
 <body>
 	<h2>RSI Assist</h2>
 	<div id="hostname" class="hostname">Chargement...</div>
 	
-	<button id="floating-toggle-btn" class="btn-secondary">Liste flottante : Désactivée</button>
+	<div class="top-actions">
+		<button id="floating-toggle-btn" class="btn-secondary" style="flex: 1; margin-bottom: 0;">Flottante : Off</button>
+		<button id="config-btn" class="btn-secondary" style="flex: 1; margin-bottom: 0;">Paramètres</button>
+	</div>
 	
 	<div id="snippets-list">
 		<!-- Dynamic snippet inputs will be inserted here -->
@@ -111,11 +119,6 @@
 	
 	<div class="actions">
 		<button id="clear-btn" class="btn-clear" style="width: 100%;">Supprimer tout</button>
-	</div>
-	
-	<div class="actions">
-		<button id="export-btn" class="btn-secondary" style="flex: 1; margin-bottom: 0;">Exporter</button>
-		<button id="import-btn" class="btn-secondary" style="flex: 1; margin-bottom: 0;">Importer</button>
 	</div>
 	
 	<div id="status" class="status"></div>
