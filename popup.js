@@ -13,12 +13,12 @@ document.addEventListener
 		const addBtn = document.getElementById('add-btn');
 		const clearBtn = document.getElementById('clear-btn');
 		const statusElement = document.getElementById('status');
-		
+
 		let currentHostname = '';
 		let floatingEnabledState = false;
 		let saveTimeout = null;
 		let draggedItem = null;
-		
+
 		// Query active tab to get exact hostname
 		chrome.tabs.query
 		(
@@ -30,20 +30,20 @@ document.addEventListener
 					hostnameElement.textContent = 'Aucun onglet actif';
 					return;
 				}
-				
+
 				const tab = tabs[0];
 				if (!tab.url)
 				{
 					hostnameElement.textContent = 'URL non disponible';
 					return;
 				}
-				
+
 				try
 				{
 					const url = new URL(tab.url);
 					currentHostname = url.hostname;
 					hostnameElement.textContent = currentHostname;
-					
+
 					loadSnippets();
 				}
 				catch (error)
@@ -53,7 +53,7 @@ document.addEventListener
 				}
 			}
 		);
-		
+
 		function updateFloatingToggleUI(enabled)
 		{
 			floatingEnabledState = enabled;
@@ -70,7 +70,7 @@ document.addEventListener
 				floatingToggleBtn.style.color = '';
 			}
 		}
-		
+
 		floatingToggleBtn.addEventListener
 		(
 			'click',
@@ -80,14 +80,14 @@ document.addEventListener
 				{
 					return;
 				}
-				
+
 				const newState = !floatingEnabledState;
 				updateFloatingToggleUI(newState);
-				
+
 				const floatingKey = 'floatingList_' + currentHostname;
 				const data = {};
 				data[floatingKey] = newState;
-				
+
 				chrome.storage.local.set
 				(
 					data,
@@ -98,7 +98,7 @@ document.addEventListener
 				);
 			}
 		);
-		
+
 		configBtn.addEventListener
 		(
 			'click',
@@ -114,26 +114,26 @@ document.addEventListener
 				}
 			}
 		);
-		
+
 		function triggerAutoSave()
 		{
 			if (!currentHostname)
 			{
 				return;
 			}
-			
+
 			if (saveTimeout)
 			{
 				clearTimeout(saveTimeout);
 			}
-			
+
 			saveTimeout = setTimeout
 			(
 				function ()
 				{
 					const inputs = snippetsListElement.querySelectorAll('input[type="text"]');
 					const snippets = [];
-					
+
 					inputs.forEach
 					(
 						function (input)
@@ -145,10 +145,10 @@ document.addEventListener
 							}
 						}
 					);
-					
+
 					const data = {};
 					data[currentHostname] = snippets;
-					
+
 					chrome.storage.local.set
 					(
 						data,
@@ -161,14 +161,14 @@ document.addEventListener
 				300
 			);
 		}
-		
+
 		function loadSnippets()
 		{
 			if (!currentHostname)
 			{
 				return;
 			}
-			
+
 			const floatingKey = 'floatingList_' + currentHostname;
 			chrome.storage.local.get
 			(
@@ -177,11 +177,11 @@ document.addEventListener
 				{
 					const snippets = result[currentHostname] || [];
 					const isFloatingEnabled = !!result[floatingKey];
-					
+
 					updateFloatingToggleUI(isFloatingEnabled);
-					
+
 					snippetsListElement.innerHTML = '';
-					
+
 					if (snippets.length === 0)
 					{
 						addSnippetInput('', false);
@@ -199,29 +199,29 @@ document.addEventListener
 				}
 			);
 		}
-		
+
 		function addSnippetInput(value, saveOnChange = true)
 		{
 			const container = document.createElement('div');
 			container.className = 'snippet-container';
 			container.draggable = true;
-			
+
 			const handle = document.createElement('span');
 			handle.className = 'snippet-handle';
 			handle.textContent = '☰';
 			handle.title = 'Glisser pour réordonner';
-			
+
 			const input = document.createElement('input');
 			input.type = 'text';
 			input.value = value;
 			input.placeholder = 'Entrez votre texte...';
-			
+
 			const deleteBtn = document.createElement('button');
 			deleteBtn.type = 'button';
 			deleteBtn.className = 'btn-danger';
 			deleteBtn.textContent = '✕';
 			deleteBtn.title = 'Supprimer';
-			
+
 			deleteBtn.addEventListener
 			(
 				'click',
@@ -231,7 +231,7 @@ document.addEventListener
 					triggerAutoSave();
 				}
 			);
-			
+
 			container.addEventListener
 			(
 				'dragstart',
@@ -248,7 +248,7 @@ document.addEventListener
 					e.dataTransfer.setData('text/plain', '');
 				}
 			);
-			
+
 			container.addEventListener
 			(
 				'dragend',
@@ -266,7 +266,7 @@ document.addEventListener
 					triggerAutoSave();
 				}
 			);
-			
+
 			container.addEventListener
 			(
 				'dragover',
@@ -290,7 +290,7 @@ document.addEventListener
 					}
 				}
 			);
-			
+
 			container.addEventListener
 			(
 				'dragleave',
@@ -299,7 +299,7 @@ document.addEventListener
 					container.classList.remove('drag-over');
 				}
 			);
-			
+
 			container.addEventListener
 			(
 				'drop',
@@ -310,18 +310,18 @@ document.addEventListener
 					triggerAutoSave();
 				}
 			);
-			
+
 			container.appendChild(handle);
 			container.appendChild(input);
 			container.appendChild(deleteBtn);
 			snippetsListElement.appendChild(container);
-			
+
 			if (saveOnChange)
 			{
 				triggerAutoSave();
 			}
 		}
-		
+
 		snippetsListElement.addEventListener
 		(
 			'input',
@@ -330,7 +330,7 @@ document.addEventListener
 				triggerAutoSave();
 			}
 		);
-		
+
 		addBtn.addEventListener
 		(
 			'click',
@@ -339,7 +339,7 @@ document.addEventListener
 				addSnippetInput('');
 			}
 		);
-		
+
 		clearBtn.addEventListener
 		(
 			'click',
@@ -349,7 +349,7 @@ document.addEventListener
 				{
 					return;
 				}
-				
+
 				if (confirm('Voulez-vous vraiment supprimer tous les textes pour ce site ?'))
 				{
 					const floatingKey = 'floatingList_' + currentHostname;
@@ -367,7 +367,7 @@ document.addEventListener
 				}
 			}
 		);
-		
+
 		function showStatus(message)
 		{
 			statusElement.textContent = message;

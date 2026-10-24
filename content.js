@@ -5,7 +5,7 @@
 	function ()
 	{
 		const HOST_ID = 'rsi-assist-floating-host';
-		
+
 		function simulateTabKey(element)
 		{
 			const keydownEvent = new KeyboardEvent
@@ -44,12 +44,12 @@
 					cancelable: true
 				}
 			);
-			
+
 			element.dispatchEvent(keydownEvent);
 			element.dispatchEvent(keypressEvent);
 			element.dispatchEvent(keyupEvent);
 		}
-		
+
 		function insertText(text)
 		{
 			const activeElement = document.activeElement;
@@ -57,16 +57,16 @@
 			{
 				return;
 			}
-			
+
 			if (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')
 			{
 				const start = activeElement.selectionStart;
 				const end = activeElement.selectionEnd;
 				const value = activeElement.value;
-				
+
 				activeElement.value = value.substring(0, start) + text + value.substring(end);
 				activeElement.selectionStart = activeElement.selectionEnd = start + text.length;
-				
+
 				activeElement.dispatchEvent(new Event('input', { bubbles: true }));
 				activeElement.dispatchEvent(new Event('change', { bubbles: true }));
 			}
@@ -85,7 +85,7 @@
 					selection.addRange(range);
 				}
 			}
-			
+
 			setTimeout
 			(
 				function ()
@@ -95,7 +95,7 @@
 				200
 			);
 		}
-		
+
 		function removeFloatingList()
 		{
 			const existingHost = document.getElementById(HOST_ID);
@@ -104,19 +104,19 @@
 				existingHost.remove();
 			}
 		}
-		
+
 		function renderFloatingList(snippets, savedPos, fontSize)
 		{
 			removeFloatingList();
-			
+
 			if (!document.body)
 			{
 				return;
 			}
-			
+
 			const parsedSize = typeof fontSize === 'number' ? fontSize : parseInt(fontSize, 10);
 			const finalFontSize = (!isNaN(parsedSize) ? parsedSize : 13) + 'px';
-			
+
 			// ==========================================
 			// VIEWPORT BOUNDARY ENFORCEMENT & ADAPTATION
 			// Cleanly separate logic to keep box inside viewport:
@@ -126,16 +126,16 @@
 			{
 				const vw = window.innerWidth;
 				const vh = window.innerHeight;
-				
+
 				const rect = targetBox.getBoundingClientRect();
-				
+
 				let currentLeft = rect.left;
 				let currentTop = rect.top;
 				let currentWidth = rect.width;
 				let currentHeight = rect.height;
-				
+
 				let modified = false;
-				
+
 				// 1. Resize if dimensions exceed viewport
 				if (currentWidth > vw)
 				{
@@ -143,40 +143,40 @@
 					targetBox.style.width = currentWidth + 'px';
 					modified = true;
 				}
-				
+
 				if (currentHeight > vh)
 				{
 					currentHeight = vh;
 					targetBox.style.height = currentHeight + 'px';
 					modified = true;
 				}
-				
+
 				// 2. Reposition horizontally if outside viewport
 				if (currentLeft + currentWidth > vw)
 				{
 					currentLeft = Math.max(0, vw - currentWidth);
 					modified = true;
 				}
-				
+
 				if (currentLeft < 0)
 				{
 					currentLeft = 0;
 					modified = true;
 				}
-				
+
 				// 3. Reposition vertically if outside viewport
 				if (currentTop + currentHeight > vh)
 				{
 					currentTop = Math.max(0, vh - currentHeight);
 					modified = true;
 				}
-				
+
 				if (currentTop < 0)
 				{
 					currentTop = 0;
 					modified = true;
 				}
-				
+
 				if (modified)
 				{
 					targetBox.style.right = 'auto';
@@ -184,13 +184,13 @@
 					targetBox.style.top = currentTop + 'px';
 				}
 			}
-			
+
 			const host = document.createElement('div');
 			host.id = HOST_ID;
 			document.body.appendChild(host);
-			
+
 			const shadowRoot = host.attachShadow({ mode: 'closed' });
-			
+
 			const style = document.createElement('style');
 			style.textContent = `
 				.rsi-box {
@@ -296,10 +296,10 @@
 					border-bottom-right-radius: 8px;
 				}
 			`;
-			
+
 			const box = document.createElement('div');
 			box.className = 'rsi-box';
-			
+
 			if (savedPos)
 			{
 				if (savedPos.left)
@@ -320,32 +320,32 @@
 					box.style.height = savedPos.height;
 				}
 			}
-			
+
 			const header = document.createElement('div');
 			header.className = 'rsi-header';
-			
+
 			const titleSpan = document.createElement('span');
 			titleSpan.className = 'rsi-title';
 			titleSpan.textContent = 'RSI Assist';
-			
+
 			const controlsContainer = document.createElement('div');
 			controlsContainer.className = 'rsi-controls';
-			
+
 			const shadeBtn = document.createElement('button');
 			shadeBtn.type = 'button';
 			shadeBtn.className = 'rsi-control-btn';
 			shadeBtn.textContent = '_';
 			shadeBtn.title = 'Minimiser';
-			
+
 			const closeBtn = document.createElement('button');
 			closeBtn.type = 'button';
 			closeBtn.className = 'rsi-control-btn';
 			closeBtn.textContent = '✕';
 			closeBtn.title = 'Fermer';
-			
+
 			let isShaded = false;
 			let previousHeight = '';
-			
+
 			shadeBtn.addEventListener
 			(
 				'mousedown',
@@ -355,7 +355,7 @@
 					e.stopPropagation();
 				}
 			);
-			
+
 			shadeBtn.addEventListener
 			(
 				'click',
@@ -385,7 +385,7 @@
 					}
 				}
 			);
-			
+
 			closeBtn.addEventListener
 			(
 				'mousedown',
@@ -395,7 +395,7 @@
 					e.stopPropagation();
 				}
 			);
-			
+
 			closeBtn.addEventListener
 			(
 				'click',
@@ -417,7 +417,7 @@
 					);
 				}
 			);
-			
+
 			controlsContainer.addEventListener
 			(
 				'mousedown',
@@ -426,16 +426,16 @@
 					e.stopPropagation();
 				}
 			);
-			
+
 			controlsContainer.appendChild(shadeBtn);
 			controlsContainer.appendChild(closeBtn);
-			
+
 			header.appendChild(titleSpan);
 			header.appendChild(controlsContainer);
-			
+
 			const body = document.createElement('div');
 			body.className = 'rsi-body';
-			
+
 			snippets.forEach
 			(
 				function (snippet)
@@ -445,7 +445,7 @@
 					btn.className = 'rsi-btn';
 					btn.textContent = snippet;
 					btn.title = snippet;
-					
+
 					btn.addEventListener
 					(
 						'mousedown',
@@ -456,7 +456,7 @@
 							insertText(snippet);
 						}
 					);
-					
+
 					btn.addEventListener
 					(
 						'mouseup',
@@ -466,7 +466,7 @@
 							e.stopPropagation();
 						}
 					);
-					
+
 					btn.addEventListener
 					(
 						'click',
@@ -476,23 +476,23 @@
 							e.stopPropagation();
 						}
 					);
-					
+
 					body.appendChild(btn);
 				}
 			);
-			
+
 			const resizeHandle = document.createElement('div');
 			resizeHandle.className = 'rsi-resize-handle';
-			
+
 			box.appendChild(header);
 			box.appendChild(body);
 			box.appendChild(resizeHandle);
 			shadowRoot.appendChild(style);
 			shadowRoot.appendChild(box);
-			
+
 			// Enforce viewport boundaries immediately and on window resize
 			constrainBoxToViewport(box);
-			
+
 			function onWindowResize()
 			{
 				if (document.contains(host))
@@ -506,7 +506,7 @@
 				}
 			}
 			window.addEventListener('resize', onWindowResize);
-			
+
 			function saveFloatingPosition()
 			{
 				const hostname = window.location.hostname;
@@ -522,7 +522,7 @@
 				data[posKey] = posData;
 				chrome.storage.local.set(data);
 			}
-			
+
 			// Dragging logic
 			header.addEventListener
 			(
@@ -533,11 +533,11 @@
 					const rect = box.getBoundingClientRect();
 					const offsetX = e.clientX - rect.left;
 					const offsetY = e.clientY - rect.top;
-					
+
 					box.style.right = 'auto';
 					box.style.left = rect.left + 'px';
 					box.style.top = rect.top + 'px';
-					
+
 					function onMouseMove(moveEvent)
 					{
 						const newX = moveEvent.clientX - offsetX;
@@ -545,7 +545,7 @@
 						box.style.left = newX + 'px';
 						box.style.top = newY + 'px';
 					}
-					
+
 					function onMouseUp()
 					{
 						window.removeEventListener('mousemove', onMouseMove);
@@ -553,12 +553,12 @@
 						constrainBoxToViewport(box);
 						saveFloatingPosition();
 					}
-					
+
 					window.addEventListener('mousemove', onMouseMove);
 					window.addEventListener('mouseup', onMouseUp);
 				}
 			);
-			
+
 			// Resizing logic
 			resizeHandle.addEventListener
 			(
@@ -571,14 +571,14 @@
 					const startY = e.clientY;
 					const startWidth = box.offsetWidth;
 					const startHeight = box.offsetHeight;
-					
+
 					const rect = box.getBoundingClientRect();
 					box.style.right = 'auto';
 					box.style.left = rect.left + 'px';
 					box.style.top = rect.top + 'px';
 					box.style.width = startWidth + 'px';
 					box.style.height = startHeight + 'px';
-					
+
 					function onResizeMove(moveEvent)
 					{
 						const newWidth = Math.max(280, startWidth + (moveEvent.clientX - startX));
@@ -586,7 +586,7 @@
 						box.style.width = newWidth + 'px';
 						box.style.height = newHeight + 'px';
 					}
-					
+
 					function onResizeUp()
 					{
 						window.removeEventListener('mousemove', onResizeMove);
@@ -594,19 +594,19 @@
 						constrainBoxToViewport(box);
 						saveFloatingPosition();
 					}
-					
+
 					window.addEventListener('mousemove', onResizeMove);
 					window.addEventListener('mouseup', onResizeUp);
 				}
 			);
 		}
-		
+
 		function checkAndRenderFloatingList()
 		{
 			const hostname = window.location.hostname;
 			const floatingKey = 'floatingList_' + hostname;
 			const posKey = 'floatingPos_' + hostname;
-			
+
 			chrome.storage.local.get
 			(
 				[hostname, floatingKey, posKey, 'floatingFontSize'],
@@ -618,7 +618,7 @@
 					const rawFontSize = result.floatingFontSize;
 					const numericFontSize = typeof rawFontSize === 'number' ? rawFontSize : parseInt(rawFontSize, 10);
 					const fontSize = !isNaN(numericFontSize) ? numericFontSize : 13;
-					
+
 					if (isEnabled && snippets.length > 0)
 					{
 						renderFloatingList(snippets, pos, fontSize);
@@ -630,7 +630,7 @@
 				}
 			);
 		}
-		
+
 		chrome.runtime.onMessage.addListener
 		(
 			function (request, sender, sendResponse)
@@ -641,7 +641,7 @@
 				}
 			}
 		);
-		
+
 		chrome.storage.onChanged.addListener
 		(
 			function (changes, areaName)
@@ -652,7 +652,7 @@
 				}
 			}
 		);
-		
+
 		if (document.readyState === 'loading')
 		{
 			document.addEventListener

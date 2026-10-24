@@ -52,18 +52,18 @@ function updateContextMenus()
 			{
 				return;
 			}
-			
+
 			const tab = tabs[0];
 			if (!tab.url)
 			{
 				return;
 			}
-			
+
 			try
 			{
 				const url = new URL(tab.url);
 				const hostname = url.hostname;
-				
+
 				chrome.storage.local.get
 				(
 					[hostname],
@@ -82,7 +82,7 @@ function updateContextMenus()
 										contexts: ['editable']
 									}
 								);
-								
+
 								const snippets = result[hostname] || [];
 								if (snippets.length === 0)
 								{
@@ -139,14 +139,14 @@ chrome.contextMenus.onClicked.addListener
 		{
 			const indexStr = info.menuItemId.toString().replace('rsi-assist-snippet-', '');
 			const index = parseInt(indexStr, 10);
-			
+
 			if (tab && tab.url)
 			{
 				try
 				{
 					const url = new URL(tab.url);
 					const hostname = url.hostname;
-					
+
 					chrome.storage.local.get
 					(
 						[hostname],
