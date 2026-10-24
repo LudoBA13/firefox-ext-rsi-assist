@@ -6,6 +6,7 @@
   "scripts": {
     "start": "web-ext run",
     "build": "web-ext build",
+    "rebuild": "web-ext build --overwrite-dest",
     "sign": "web-ext sign --channel listed"
   },
   "dependencies": {
