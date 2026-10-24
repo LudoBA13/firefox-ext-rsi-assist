@@ -13,9 +13,16 @@
 		"activeTab",
 		"scripting"
 	],
+	"icons": {
+		"48": "icon.png",
+		"96": "icon.png",
+		"128": "icon.png",
+		"256": "icon.png"
+	},
 	"action": {
 		"default_popup": "popup.html",
-		"default_title": "RSI Assist"
+		"default_title": "RSI Assist",
+		"default_icon": "icon.png"
 	},
 	"options_ui": {
 		"page": "options.html",
