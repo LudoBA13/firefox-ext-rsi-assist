@@ -33,6 +33,26 @@
 			margin-bottom: 8px;
 			align-items: center;
 		}
+		.snippet-handle {
+			cursor: grab;
+			user-select: none;
+			font-size: 13px;
+			color: #6a737d;
+			padding: 0 2px;
+			display: flex;
+			align-items: center;
+			letter-spacing: -1px;
+		}
+		.snippet-handle:active {
+			cursor: grabbing;
+		}
+		.snippet-container.dragging {
+			opacity: 0.4;
+		}
+		.snippet-container.drag-over {
+			border-top: 2px solid #0060df;
+			background-color: #f1f3f5;
+		}
 		input[type="text"] {
 			flex: 1;
 			padding: 6px 8px;

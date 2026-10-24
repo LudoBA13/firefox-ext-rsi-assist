@@ -17,6 +17,7 @@ document.addEventListener
 		let currentHostname = '';
 		let floatingEnabledState = false;
 		let saveTimeout = null;
+		let draggedItem = null;
 		
 		// Query active tab to get exact hostname
 		chrome.tabs.query
@@ -204,6 +205,12 @@ document.addEventListener
 			const container = document.createElement('div');
 			container.className = 'snippet-container';
 			
+			const handle = document.createElement('span');
+			handle.className = 'snippet-handle';
+			handle.textContent = '☰';
+			handle.title = 'Glisser pour réordonner';
+			handle.draggable = true;
+			
 			const input = document.createElement('input');
 			input.type = 'text';
 			input.value = value;
@@ -225,6 +232,81 @@ document.addEventListener
 				}
 			);
 			
+			handle.addEventListener
+			(
+				'dragstart',
+				function (e)
+				{
+					draggedItem = container;
+					container.classList.add('dragging');
+					e.dataTransfer.effectAllowed = 'move';
+					e.dataTransfer.setData('text/plain', '');
+				}
+			);
+			
+			handle.addEventListener
+			(
+				'dragend',
+				function ()
+				{
+					container.classList.remove('dragging');
+					snippetsListElement.querySelectorAll('.snippet-container').forEach
+					(
+						function (c)
+						{
+							c.classList.remove('drag-over');
+						}
+					);
+					draggedItem = null;
+					triggerAutoSave();
+				}
+			);
+			
+			container.addEventListener
+			(
+				'dragover',
+				function (e)
+				{
+					e.preventDefault();
+					e.dataTransfer.dropEffect = 'move';
+					container.classList.add('drag-over');
+					if (draggedItem && draggedItem !== container)
+					{
+						const rect = container.getBoundingClientRect();
+						const midpoint = rect.top + rect.height / 2;
+						if (e.clientY < midpoint)
+						{
+							snippetsListElement.insertBefore(draggedItem, container);
+						}
+						else
+						{
+							snippetsListElement.insertBefore(draggedItem, container.nextSibling);
+						}
+					}
+				}
+			);
+			
+			container.addEventListener
+			(
+				'dragleave',
+				function ()
+				{
+					container.classList.remove('drag-over');
+				}
+			);
+			
+			container.addEventListener
+			(
+				'drop',
+				function (e)
+				{
+					e.preventDefault();
+					container.classList.remove('drag-over');
+					triggerAutoSave();
+				}
+			);
+			
+			container.appendChild(handle);
 			container.appendChild(input);
 			container.appendChild(deleteBtn);
 			snippetsListElement.appendChild(container);
