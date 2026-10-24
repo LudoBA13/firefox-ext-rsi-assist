@@ -114,6 +114,74 @@
 				return;
 			}
 			
+			// ==========================================
+			// VIEWPORT BOUNDARY ENFORCEMENT & ADAPTATION
+			// Cleanly separate logic to keep box inside viewport:
+			// Repositions if possible, otherwise resizes.
+			// ==========================================
+			function constrainBoxToViewport(targetBox)
+			{
+				const vw = window.innerWidth;
+				const vh = window.innerHeight;
+				
+				const rect = targetBox.getBoundingClientRect();
+				
+				let currentLeft = rect.left;
+				let currentTop = rect.top;
+				let currentWidth = rect.width;
+				let currentHeight = rect.height;
+				
+				let modified = false;
+				
+				// 1. Resize if dimensions exceed viewport
+				if (currentWidth > vw)
+				{
+					currentWidth = vw;
+					targetBox.style.width = currentWidth + 'px';
+					modified = true;
+				}
+				
+				if (currentHeight > vh)
+				{
+					currentHeight = vh;
+					targetBox.style.height = currentHeight + 'px';
+					modified = true;
+				}
+				
+				// 2. Reposition horizontally if outside viewport
+				if (currentLeft + currentWidth > vw)
+				{
+					currentLeft = Math.max(0, vw - currentWidth);
+					modified = true;
+				}
+				
+				if (currentLeft < 0)
+				{
+					currentLeft = 0;
+					modified = true;
+				}
+				
+				// 3. Reposition vertically if outside viewport
+				if (currentTop + currentHeight > vh)
+				{
+					currentTop = Math.max(0, vh - currentHeight);
+					modified = true;
+				}
+				
+				if (currentTop < 0)
+				{
+					currentTop = 0;
+					modified = true;
+				}
+				
+				if (modified)
+				{
+					targetBox.style.right = 'auto';
+					targetBox.style.left = currentLeft + 'px';
+					targetBox.style.top = currentTop + 'px';
+				}
+			}
+			
 			const host = document.createElement('div');
 			host.id = HOST_ID;
 			document.body.appendChild(host);
@@ -419,6 +487,23 @@
 			shadowRoot.appendChild(style);
 			shadowRoot.appendChild(box);
 			
+			// Enforce viewport boundaries immediately and on window resize
+			constrainBoxToViewport(box);
+			
+			function onWindowResize()
+			{
+				if (document.contains(host))
+				{
+					constrainBoxToViewport(box);
+					saveFloatingPosition();
+				}
+				else
+				{
+					window.removeEventListener('resize', onWindowResize);
+				}
+			}
+			window.addEventListener('resize', onWindowResize);
+			
 			function saveFloatingPosition()
 			{
 				const hostname = window.location.hostname;
@@ -462,6 +547,7 @@
 					{
 						window.removeEventListener('mousemove', onMouseMove);
 						window.removeEventListener('mouseup', onMouseUp);
+						constrainBoxToViewport(box);
 						saveFloatingPosition();
 					}
 					
@@ -502,6 +588,7 @@
 					{
 						window.removeEventListener('mousemove', onResizeMove);
 						window.removeEventListener('mouseup', onResizeUp);
+						constrainBoxToViewport(box);
 						saveFloatingPosition();
 					}
 					
