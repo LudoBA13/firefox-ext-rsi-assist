@@ -204,12 +204,12 @@ document.addEventListener
 		{
 			const container = document.createElement('div');
 			container.className = 'snippet-container';
+			container.draggable = true;
 			
 			const handle = document.createElement('span');
 			handle.className = 'snippet-handle';
 			handle.textContent = '☰';
 			handle.title = 'Glisser pour réordonner';
-			handle.draggable = true;
 			
 			const input = document.createElement('input');
 			input.type = 'text';
@@ -232,11 +232,16 @@ document.addEventListener
 				}
 			);
 			
-			handle.addEventListener
+			container.addEventListener
 			(
 				'dragstart',
 				function (e)
 				{
+					if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON')
+					{
+						e.preventDefault();
+						return;
+					}
 					draggedItem = container;
 					container.classList.add('dragging');
 					e.dataTransfer.effectAllowed = 'move';
@@ -244,7 +249,7 @@ document.addEventListener
 				}
 			);
 			
-			handle.addEventListener
+			container.addEventListener
 			(
 				'dragend',
 				function ()
