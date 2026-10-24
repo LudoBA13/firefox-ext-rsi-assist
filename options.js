@@ -10,6 +10,10 @@ document.addEventListener
 		const importFile = document.getElementById('import-file');
 		const statusElement = document.getElementById('status');
 		const domainsListElement = document.getElementById('domains-list');
+		const fontSizeSlider = document.getElementById('font-size-slider');
+		const fontSizeValue = document.getElementById('font-size-value');
+		const fontSizePreview = document.getElementById('font-size-preview');
+		const prefStatusElement = document.getElementById('pref-status');
 		
 		function showStatus(message)
 		{
@@ -23,6 +27,56 @@ document.addEventListener
 				3000
 			);
 		}
+		
+		function showPrefStatus(message)
+		{
+			prefStatusElement.textContent = message;
+			setTimeout
+			(
+				function ()
+				{
+					prefStatusElement.textContent = '';
+				},
+				3000
+			);
+		}
+		
+		chrome.storage.local.get
+		(
+			['floatingFontSize'],
+			function (result)
+			{
+				if (result.floatingFontSize !== undefined)
+				{
+					const numericVal = typeof result.floatingFontSize === 'number' ? result.floatingFontSize : parseInt(result.floatingFontSize, 10);
+					if (!isNaN(numericVal))
+					{
+						fontSizeSlider.value = numericVal;
+						fontSizeValue.textContent = numericVal + 'px';
+						fontSizePreview.style.fontSize = numericVal + 'px';
+					}
+				}
+			}
+		);
+		
+		fontSizeSlider.addEventListener
+		(
+			'input',
+			function ()
+			{
+				const val = parseInt(fontSizeSlider.value, 10);
+				fontSizeValue.textContent = val + 'px';
+				fontSizePreview.style.fontSize = val + 'px';
+				chrome.storage.local.set
+				(
+					{ floatingFontSize: val },
+					function ()
+					{
+						showPrefStatus('Taille du texte enregistrée !');
+					}
+				);
+			}
+		);
 		
 		function loadAllData()
 		{
@@ -144,7 +198,62 @@ document.addEventListener
 					null,
 					function (items)
 					{
-						const dataStr = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(items, null, 2));
+						const exportData = {
+							global: {},
+							local: {}
+						};
+						
+						const globalKeys = ['floatingFontSize'];
+						const domainMap = {};
+						
+						Object.keys(items).forEach
+						(
+							function (key)
+							{
+								if (globalKeys.includes(key))
+								{
+									if (key === 'floatingFontSize')
+									{
+										const num = parseInt(items[key], 10);
+										exportData.global[key] = isNaN(num) ? 13 : num;
+									}
+									else
+									{
+										exportData.global[key] = items[key];
+									}
+								}
+								else if (key.startsWith('floatingList_'))
+								{
+									const domain = key.replace('floatingList_', '');
+									if (!domainMap[domain])
+									{
+										domainMap[domain] = {};
+									}
+									domainMap[domain].floatingList = items[key];
+								}
+								else if (key.startsWith('floatingPos_'))
+								{
+									const domain = key.replace('floatingPos_', '');
+									if (!domainMap[domain])
+									{
+										domainMap[domain] = {};
+									}
+									domainMap[domain].floatingPos = items[key];
+								}
+								else
+								{
+									if (!domainMap[key])
+									{
+										domainMap[key] = {};
+									}
+									domainMap[key].snippets = items[key];
+								}
+							}
+						);
+						
+						exportData.local = domainMap;
+						
+						const dataStr = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData, null, 2));
 						const downloadAnchor = document.createElement('a');
 						downloadAnchor.setAttribute('href', dataStr);
 						downloadAnchor.setAttribute('download', 'rsi-assist-backup-' + new Date().toISOString().slice(0, 10) + '.json');
@@ -189,14 +298,84 @@ document.addEventListener
 							throw new Error('Format JSON invalide');
 						}
 						
-						chrome.storage.local.set
+						const flatData = {};
+						
+						if (parsed.global && typeof parsed.global === 'object')
+						{
+							Object.keys(parsed.global).forEach
+							(
+								function (key)
+								{
+									if (key === 'floatingFontSize')
+									{
+										const parsedNum = parseInt(parsed.global[key], 10);
+										flatData[key] = isNaN(parsedNum) ? 13 : parsedNum;
+									}
+									else
+									{
+										flatData[key] = parsed.global[key];
+									}
+								}
+							);
+						}
+						
+						if (parsed.local && typeof parsed.local === 'object')
+						{
+							Object.keys(parsed.local).forEach
+							(
+								function (domain)
+								{
+									const siteData = parsed.local[domain];
+									if (siteData && typeof siteData === 'object')
+									{
+										if (Array.isArray(siteData.snippets))
+										{
+											flatData[domain] = siteData.snippets;
+										}
+										if (typeof siteData.floatingList === 'boolean')
+										{
+											flatData['floatingList_' + domain] = siteData.floatingList;
+										}
+										if (siteData.floatingPos)
+										{
+											flatData['floatingPos_' + domain] = siteData.floatingPos;
+										}
+									}
+								}
+							);
+						}
+						
+						chrome.storage.local.clear
 						(
-							parsed,
 							function ()
 							{
-								loadAllData();
-								showStatus('Importation réussie !');
-								importFile.value = '';
+								chrome.storage.local.set
+								(
+									flatData,
+									function ()
+									{
+										loadAllData();
+										chrome.storage.local.get
+										(
+											['floatingFontSize'],
+											function (res)
+											{
+												if (res.floatingFontSize && fontSizeSlider && fontSizeValue && fontSizePreview)
+												{
+													const numericVal = parseInt(res.floatingFontSize, 10);
+													if (!isNaN(numericVal))
+													{
+														fontSizeSlider.value = numericVal;
+														fontSizeValue.textContent = numericVal + 'px';
+														fontSizePreview.style.fontSize = numericVal + 'px';
+													}
+												}
+											}
+										);
+										showStatus('Importation réussie !');
+										importFile.value = '';
+									}
+								);
 							}
 						);
 					}

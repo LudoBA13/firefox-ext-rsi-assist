@@ -105,7 +105,7 @@
 			}
 		}
 		
-		function renderFloatingList(snippets, savedPos)
+		function renderFloatingList(snippets, savedPos, fontSize)
 		{
 			removeFloatingList();
 			
@@ -113,6 +113,9 @@
 			{
 				return;
 			}
+			
+			const parsedSize = typeof fontSize === 'number' ? fontSize : parseInt(fontSize, 10);
+			const finalFontSize = (!isNaN(parsedSize) ? parsedSize : 13) + 'px';
 			
 			// ==========================================
 			// VIEWPORT BOUNDARY ENFORCEMENT & ADAPTATION
@@ -203,7 +206,7 @@
 					border-radius: 8px;
 					box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-					font-size: 13px;
+					font-size: ${fontSize};
 					z-index: 2147483647;
 					box-sizing: border-box;
 					display: flex;
@@ -228,7 +231,7 @@
 					cursor: grabbing;
 				}
 				.rsi-title {
-					font-size: 13px;
+					font-size: ${fontSize};
 					letter-spacing: 0.3px;
 				}
 				.rsi-controls {
@@ -241,7 +244,7 @@
 					border: none;
 					color: #ffffff;
 					cursor: pointer;
-					font-size: 13px;
+					font-size: ${fontSize};
 					font-weight: bold;
 					padding: 2px 6px;
 					border-radius: 4px;
@@ -272,7 +275,7 @@
 					border: 1px solid #dcdfe6;
 					border-radius: 4px;
 					cursor: pointer;
-					font-size: 13px;
+					font-size: ${fontSize};
 					color: #24292e;
 					box-sizing: border-box;
 					transition: background 0.15s ease, border-color 0.15s ease;
@@ -606,16 +609,19 @@
 			
 			chrome.storage.local.get
 			(
-				[hostname, floatingKey, posKey],
+				[hostname, floatingKey, posKey, 'floatingFontSize'],
 				function (result)
 				{
 					const snippets = result[hostname] || [];
 					const isEnabled = !!result[floatingKey];
 					const pos = result[posKey];
+					const rawFontSize = result.floatingFontSize;
+					const numericFontSize = typeof rawFontSize === 'number' ? rawFontSize : parseInt(rawFontSize, 10);
+					const fontSize = !isNaN(numericFontSize) ? numericFontSize : 13;
 					
 					if (isEnabled && snippets.length > 0)
 					{
-						renderFloatingList(snippets, pos);
+						renderFloatingList(snippets, pos, fontSize);
 					}
 					else
 					{
