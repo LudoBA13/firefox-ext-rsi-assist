@@ -42,7 +42,7 @@ While the codebase, technical documentation, and symbols are entirely in English
 
 ## Development & Building
 
-This extension supports both **Mozilla Firefox** and **Google Chrome** (Manifest V3).
+This extension uses a single unified **Manifest V3** `manifest.json` file compatible with both **Mozilla Firefox** and **Google Chrome**.
 
 ### Prerequisites
 - Node.js & npm
@@ -51,6 +51,8 @@ This extension supports both **Mozilla Firefox** and **Google Chrome** (Manifest
 
 - **Run in Firefox:**
   ```bash
+  npm start
+  # or
   npm run start:firefox
   ```
 
@@ -61,22 +63,11 @@ This extension supports both **Mozilla Firefox** and **Google Chrome** (Manifest
 
 ### Building for Production
 
-- **Build for Firefox:**
-  ```bash
-  npm run build:firefox
-  ```
-  Generates a zip package in `web-ext-artifacts/`.
-
-- **Build for Chrome:**
-  ```bash
-  npm run build:chrome
-  ```
-  Generates a zip package in `web-ext-artifacts/chrome/`.
-
-- **Build for Both Browsers:**
+- **Build Extension Package:**
   ```bash
   npm run build
   ```
+  Generates zip packages ready for distribution.
 
 ---
 
