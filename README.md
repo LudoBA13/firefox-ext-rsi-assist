@@ -40,6 +40,46 @@ While the codebase, technical documentation, and symbols are entirely in English
 
 ---
 
+## Development & Building
+
+This extension supports both **Mozilla Firefox** and **Google Chrome** (Manifest V3).
+
+### Prerequisites
+- Node.js & npm
+
+### Development / Running locally
+
+- **Run in Firefox:**
+  ```bash
+  npm run start:firefox
+  ```
+
+- **Run in Chrome (Chromium):**
+  ```bash
+  npm run start:chrome
+  ```
+
+### Building for Production
+
+- **Build for Firefox:**
+  ```bash
+  npm run build:firefox
+  ```
+  Generates a zip package in `web-ext-artifacts/`.
+
+- **Build for Chrome:**
+  ```bash
+  npm run build:chrome
+  ```
+  Generates a zip package in `web-ext-artifacts/chrome/`.
+
+- **Build for Both Browsers:**
+  ```bash
+  npm run build
+  ```
+
+---
+
 ## License
 
 This project is licensed under the terms specified in the [LICENSE](LICENSE) file.
